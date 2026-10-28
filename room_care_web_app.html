@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Care - Guest & Service Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- App Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-concierge-bell text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-lg leading-tight">Room Care</h1>
+                    <p class="text-xs text-slate-500 font-medium" id="headerSubtitle">Guest Amenities & Service</p>
+                </div>
+            </div>
+
+            <!-- Mode Switch & Language Selector -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Language Selector -->
+                <div class="relative" id="langSelectorContainer">
+                    <select id="langSelect" onchange="changeLanguage(this.value)" class="appearance-none bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 pl-3 pr-7 rounded-lg transition border border-slate-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="th">🇹🇭 ไทย</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
+                </div>
+
+                <!-- Mode Switcher -->
+                <button id="modeToggleBtn" onclick="toggleMode()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium py-2 px-3 rounded-lg transition flex items-center space-x-1.5 shadow-sm">
+                    <i class="fa-solid fa-user-shield text-amber-400"></i>
+                    <span id="modeBtnText">แม่บ้าน</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6">
+
+        <!-- ========================================== -->
+        <!-- GUEST MODE VIEW                            -->
+        <!-- ========================================== -->
+        <div id="guestView" class="space-y-6">
+
+            <!-- Step 1: Select Room Number -->
+            <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <label for="roomSelect" class="text-sm font-bold text-slate-700 flex items-center space-x-2">
+                        <i class="fa-solid fa-door-closed text-brand-600"></i>
+                        <span id="labelSelectRoom">เลือกหมายเลขห้องพักของคุณ</span>
+                    </label>
+                    <span class="text-xs bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full font-medium" id="badgePrivate">
+                        <i class="fa-solid fa-lock text-[10px] mr-1"></i>ส่วนตัว
+                    </span>
+                </div>
+                
+                <div class="relative">
+                    <select id="roomSelect" onchange="onRoomChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-800 font-semibold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition appearance-none cursor-pointer">
+                        <option value="" disabled selected id="optSelectRoomPlaceholder">-- โปรดเลือกห้องพัก --</option>
+                        <optgroup label="Floor 1 (ชั้น 1)">
+                            <option value="101">Room 101</option>
+                            <option value="102">Room 102</option>
+                            <option value="103">Room 103</option>
+                            <option value="104">Room 104</option>
+                            <option value="105">Room 105</option>
+                        </optgroup>
+                        <optgroup label="Floor 2 (ชั้น 2)">
+                            <option value="201">Room 201</option>
+                            <option value="202">Room 202</option>
+                            <option value="203">Room 203</option>
+                            <option value="204">Room 204</option>
+                            <option value="205">Room 205</option>
+                        </optgroup>
+                        <optgroup label="Floor 3 (ชั้น 3)">
+                            <option value="301">Room 301</option>
+                            <option value="302">Room 302</option>
+                            <option value="303">Room 303</option>
+                            <option value="304">Room 304</option>
+                            <option value="305">Room 305</option>
+                        </optgroup>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                </div>
+            </section>
+
+            <!-- Main Request Interface (Disabled until room is selected) -->
+            <div id="guestContentSection" class="space-y-6 opacity-50 pointer-events-none transition-all duration-300">
+                
+                <!-- Guest Navigation Tabs -->
+                <div class="flex border-b border-slate-200 bg-white rounded-xl p-1 shadow-sm">
+                    <button onclick="setGuestTab('amenities')" id="guestTabBtn-amenities" class="flex-1 py-2.5 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-2 bg-brand-600 text-white shadow-xs">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span id="tabGuestAmenities">ขอของใช้เพิ่ม</span>
+                    </button>
+                    <button onclick="setGuestTab('repairs')" id="guestTabBtn-repairs" class="flex-1 py-2.5 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-wrench"></i>
+                        <span id="tabGuestRepairs">แจ้งซ่อมอุปกรณ์</span>
+                    </button>
+                    <button onclick="setGuestTab('ratings')" id="guestTabBtn-ratings" class="flex-1 py-2.5 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-star"></i>
+                        <span id="tabGuestRatings">ให้คะแนนห้องพัก</span>
+                    </button>
+                </div>
+
+                <!-- TAB 1: AMENITIES REQUEST -->
+                <div id="guestTabContent-amenities" class="space-y-6">
+                    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-base font-bold text-slate-900" id="headingSelectAmenities">เลือกรายการของใช้ที่ต้องการ</h2>
+                            <button onclick="resetQuantities()" class="text-xs text-slate-400 hover:text-rose-500 transition flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-right"></i> <span id="btnResetItems">รีเซ็ต</span>
+                            </button>
+                        </div>
+
+                        <!-- Items List Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="amenitiesContainer">
+                            <!-- Dynamic items generated by JS -->
+                        </div>
+
+                        <!-- Note input -->
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <label for="requestNote" class="block text-xs font-semibold text-slate-600 mb-1" id="labelNote">หมายเหตุเพิ่มเติม (ถ้ามี):</label>
+                            <input type="text" id="requestNote" placeholder="ระบุเพิ่มเติม..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition">
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button id="btnSubmitRequest" onclick="submitGuestRequest()" class="w-full mt-5 bg-gradient-to-r from-brand-600 to-teal-600 hover:from-brand-700 hover:to-teal-700 text-white font-semibold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/25 active:scale-[0.99] transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span id="textSubmitBtn">ส่งคำขอของใช้</span>
+                        </button>
+                    </section>
+
+                    <!-- Room Delivery Tracking -->
+                    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></div>
+                                <h2 class="text-base font-bold text-slate-900" id="headingRoomStatus">สถานะการจัดส่งห้องพักของคุณ</h2>
+                            </div>
+                            <span id="activeRoomBadge" class="text-xs font-bold text-brand-700 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">
+                                Room --
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-4" id="privacyNoticeText">
+                            <i class="fa-solid fa-shield-halved text-slate-400 mr-1"></i>ระบบแสดงเฉพาะข้อมูลคำขอของห้องพักที่คุณเลือกเท่านั้น
+                        </p>
+                        <div id="guestRoomRequestsList" class="space-y-3">
+                            <!-- Isolated room requests here -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- TAB 2: MAINTENANCE / REPAIRS -->
+                <div id="guestTabContent-repairs" class="hidden space-y-6">
+                    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+                        <h2 class="text-base font-bold text-slate-900" id="headingRepairForm">แจ้งซ่อมอุปกรณ์ในห้องพัก</h2>
+                        
+                        <div>
+                            <label for="repairCategorySelect" class="block text-xs font-semibold text-slate-600 mb-1" id="labelRepairCategory">หมวดหมู่อุปกรณ์ที่ชำรุด:</label>
+                            <select id="repairCategorySelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none transition">
+                                <option value="ac" id="optCategoryAc">เครื่องปรับอากาศ (Air Conditioner)</option>
+                                <option value="tv" id="optCategoryTv">โทรทัศน์ / รีโมท (TV & Remote)</option>
+                                <option value="lights" id="optCategoryLights">ระบบไฟฟ้า / หลอดไฟ (Lighting)</option>
+                                <option value="plumbing" id="optCategoryPlumbing">ห้องน้ำ / ท่อน้ำ (Bathroom & Plumbing)</option>
+                                <option value="door" id="optCategoryDoor">กลอนประตู / คีย์การ์ด (Door Lock)</option>
+                                <option value="wifi" id="optCategoryWifi">อินเทอร์เน็ต Wi-Fi</option>
+                                <option value="furniture" id="optCategoryFurniture">เฟอร์นิเจอร์ (Furniture)</option>
+                                <option value="other" id="optCategoryOther">อื่นๆ (Other)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="repairDescription" class="block text-xs font-semibold text-slate-600 mb-1" id="labelRepairDesc">รายละเอียดปัญหาที่พบ:</label>
+                            <textarea id="repairDescription" rows="3" placeholder="ระบุอาการชำรุดเพิ่มเติม..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition"></textarea>
+                        </div>
+
+                        <button onclick="submitRepairRequest()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-wrench"></i>
+                            <span id="btnSubmitRepairText">ส่งแจ้งซ่อมอุปกรณ์</span>
+                        </button>
+                    </section>
+
+                    <!-- Repair Status Tracking -->
+                    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                        <h2 class="text-base font-bold text-slate-900 mb-4" id="headingRepairStatus">ติดตามสถานะการแจ้งซ่อม</h2>
+                        <div id="guestRepairsList" class="space-y-3">
+                            <!-- Isolated repair requests here -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- TAB 3: ROOM RATING -->
+                <div id="guestTabContent-ratings" class="hidden space-y-6">
+                    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm text-center space-y-4">
+                        <h2 class="text-base font-bold text-slate-900" id="headingRateRoom">ประเมินความพึงพอใจห้องพัก</h2>
+                        <p class="text-xs text-slate-500" id="subtextRateRoom">ร่วมแบ่งปันประสบการณ์การเข้าพักเพื่อการบริการที่ดียิ่งขึ้น</p>
+
+                        <!-- Interactive Stars -->
+                        <div class="flex justify-center space-x-2 text-2xl text-amber-400 py-2">
+                            <i class="fa-solid fa-star cursor-pointer hover:scale-110 transition" onclick="setStarRating(1)" id="star-1"></i>
+                            <i class="fa-solid fa-star cursor-pointer hover:scale-110 transition" onclick="setStarRating(2)" id="star-2"></i>
+                            <i class="fa-solid fa-star cursor-pointer hover:scale-110 transition" onclick="setStarRating(3)" id="star-3"></i>
+                            <i class="fa-solid fa-star cursor-pointer hover:scale-110 transition" onclick="setStarRating(4)" id="star-4"></i>
+                            <i class="fa-solid fa-star cursor-pointer hover:scale-110 transition" onclick="setStarRating(5)" id="star-5"></i>
+                        </div>
+
+                        <textarea id="ratingComment" rows="3" placeholder="ความคิดเห็นเกี่ยวกับห้องพักและการบริการ..." class="w-full text-left bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition"></textarea>
+
+                        <button onclick="submitRoomRating()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span id="btnSubmitRatingText">ส่งคะแนนประเมิน</span>
+                        </button>
+                    </section>
+
+                    <!-- Room Ratings History -->
+                    <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                        <h2 class="text-base font-bold text-slate-900 mb-4" id="headingRatingHistory">ประวัติการประเมินของห้องนี้</h2>
+                        <div id="guestRatingsList" class="space-y-3">
+                            <!-- Rating logs for selected room -->
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================================== -->
+        <!-- HOUSEKEEPER MODE VIEW                      -->
+        <!-- ========================================== -->
+        <div id="housekeeperView" class="hidden space-y-6">
+
+            <!-- Housekeeper Dashboard Navigation -->
+            <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-lg space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <h2 class="text-lg font-bold" id="hkDashboardTitle">ระบบจัดการแม่บ้าน (Housekeeper Dashboard)</h2>
+                        <p class="text-xs text-slate-400 mt-0.5" id="hkDashboardSubtitle">จัดการบริการคำขอ แจ้งซ่อม และข้อคิดเห็นของลูกค้า</p>
+                    </div>
+                </div>
+
+                <!-- HK Sub-tabs -->
+                <div class="flex border-b border-slate-700 pt-2 gap-4 text-xs font-bold">
+                    <button onclick="setHkTab('amenities')" id="hkTabBtn-amenities" class="py-2 border-b-2 border-brand-500 text-brand-400 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-boxes-packing"></i> <span id="hkTabLabelAmenities">รายการขอของใช้</span>
+                    </button>
+                    <button onclick="setHkTab('repairs')" id="hkTabBtn-repairs" class="py-2 border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-screwdriver-wrench"></i> <span id="hkTabLabelRepairs">รายการแจ้งซ่อม</span>
+                    </button>
+                    <button onclick="setHkTab('ratings')" id="hkTabBtn-ratings" class="py-2 border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-star"></i> <span id="hkTabLabelRatings">คะแนนประเมิน</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- HK TAB 1: AMENITIES BOARD -->
+            <div id="hkTabContent-amenities" class="space-y-4">
+                <div class="flex flex-wrap gap-1.5 bg-white p-2 rounded-xl border border-slate-200 shadow-xs">
+                    <button onclick="setHkAmenityFilter('all')" id="hkFilterBtn-all" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition">
+                        <span id="filterAllText">ทั้งหมด</span> (<span id="count-all">0</span>)
+                    </button>
+                    <button onclick="setHkAmenityFilter('pending')" id="hkFilterBtn-pending" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                        🟡 <span id="filterPendingText">รอดำเนินการ</span> (<span id="count-pending">0</span>)
+                    </button>
+                    <button onclick="setHkAmenityFilter('in_progress')" id="hkFilterBtn-in_progress" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                        🔵 <span id="filterInProgressText">กำลังจัดส่ง</span> (<span id="count-in_progress">0</span>)
+                    </button>
+                    <button onclick="setHkAmenityFilter('completed')" id="hkFilterBtn-completed" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                        🟢 <span id="filterCompletedText">เสร็จสิ้น</span> (<span id="count-completed">0</span>)
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100" id="housekeeperRequestsList">
+                    <!-- Tasks rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- HK TAB 2: REPAIRS BOARD -->
+            <div id="hkTabContent-repairs" class="hidden space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100" id="housekeeperRepairsList">
+                    <!-- Maintenance tasks rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- HK TAB 3: REVIEWS & RATINGS -->
+            <div id="hkTabContent-ratings" class="hidden space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100" id="housekeeperRatingsList">
+                    <!-- Guest reviews rendered dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- PIN Modal for Housekeeper Login -->
+    <div id="pinModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl border border-slate-100 text-center space-y-4">
+            <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl shadow-inner">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900" id="pinModalTitle">เข้าสู่ระบบแม่บ้าน</h3>
+            </div>
+
+            <!-- PIN Display -->
+            <div class="flex justify-center space-x-2 py-2">
+                <input type="password" id="pinInput" readonly maxlength="4" class="w-36 text-center text-2xl font-bold tracking-[0.5em] bg-slate-100 border border-slate-300 rounded-xl py-2 focus:outline-none">
+            </div>
+            <p id="pinError" class="text-xs text-rose-500 font-semibold hidden">PIN ไม่ถูกต้อง</p>
+
+            <!-- Keypad -->
+            <div class="grid grid-cols-3 gap-2 max-w-[200px] mx-auto">
+                <button onclick="appendPin('1')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">1</button>
+                <button onclick="appendPin('2')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">2</button>
+                <button onclick="appendPin('3')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">3</button>
+                <button onclick="appendPin('4')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">4</button>
+                <button onclick="appendPin('5')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">5</button>
+                <button onclick="appendPin('6')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">6</button>
+                <button onclick="appendPin('7')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">7</button>
+                <button onclick="appendPin('8')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">8</button>
+                <button onclick="appendPin('9')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">9</button>
+                <button onclick="clearPin()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 active:scale-95 py-3 rounded-xl font-bold text-sm transition">C</button>
+                <button onclick="appendPin('0')" class="bg-slate-100 hover:bg-slate-200 active:scale-95 py-3 rounded-xl font-bold text-slate-700 text-lg transition">0</button>
+                <button onclick="submitPin()" class="bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95 py-3 rounded-xl font-bold text-sm transition"><i class="fa-solid fa-check"></i></button>
+            </div>
+
+            <button onclick="closePinModal()" class="text-xs text-slate-400 hover:text-slate-600 mt-2 block mx-auto underline" id="btnPinCancel">
+                ยกเลิก
+            </button>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // Secret Housekeeper PIN
+        const HOUSEKEEPER_PIN = "1111";
+
+        let currentLang = 'th';
+        let currentMode = 'guest'; 
+        let currentSelectedRoom = '';
+        let currentGuestTab = 'amenities';
+        let currentHkTab = 'amenities';
+        let hkAmenityFilterStatus = 'all';
+        let selectedStarRating = 5;
+
+        // Amenity Definitions
+        const AMENITIES = [
+            { id: 'towel', icon: 'fa-shower', key: 'itemTowel' },
+            { id: 'water', icon: 'fa-bottle-water', key: 'itemWater' },
+            { id: 'pillow', icon: 'fa-mattress-pillow', key: 'itemPillow' },
+            { id: 'blanket', icon: 'fa-box-archive', key: 'itemBlanket' },
+            { id: 'slippers', icon: 'fa-socks', key: 'itemSlippers' },
+            { id: 'soap_shampoo', icon: 'fa-pump-soap', key: 'itemSoapShampoo' },
+            { id: 'tissues', icon: 'fa-box-tissue', key: 'itemTissues' },
+            { id: 'hairdryer', icon: 'fa-wind', key: 'itemHairdryer' },
+            { id: 'extra_bed', icon: 'fa-bed', key: 'itemExtraBed' }
+        ];
+
+        // Comprehensive 8-Language Dictionary
+        const i18n = {
+            th: {
+                subtitle: "บริการอุปกรณ์ของใช้และแจ้งซ่อม",
+                modeHousekeeper: "แม่บ้าน",
+                modeGuest: "ผู้เข้าพัก",
+                selectRoomLabel: "เลือกหมายเลขห้องพักของคุณ",
+                selectRoomPlaceholder: "-- โปรดเลือกห้องพัก --",
+                badgePrivate: "ส่วนตัว",
+                tabAmenities: "ขอของใช้เพิ่ม",
+                tabRepairs: "แจ้งซ่อมอุปกรณ์",
+                tabRatings: "ให้คะแนนห้องพัก",
+                selectAmenitiesHeading: "เลือกรายการของใช้ที่ต้องการ",
+                resetBtn: "รีเซ็ต",
+                noteLabel: "หมายเหตุเพิ่มเติม (ถ้ามี):",
+                notePlaceholder: "ระบุเพิ่มเติม...",
+                submitBtn: "ส่งคำขอของใช้",
+                roomStatusHeading: "สถานะการจัดส่งห้องพักของคุณ",
+                privacyNotice: "ระบบแสดงเฉพาะข้อมูลของห้องพักที่คุณเลือกเท่านั้น",
+                noRequests: "ยังไม่มีรายการสำหรับห้องพักนี้",
+                statusPending: "รอดำเนินการ",
+                statusInProgress: "กำลังจัดส่ง",
+                statusCompleted: "จัดส่งเรียบร้อย",
+                statusInRepair: "กำลังซ่อมแซม",
+                statusFixed: "ซ่อมแซมเสร็จสิ้น",
+                itemTowel: "ผ้าขนหนู",
+                itemWater: "น้ำดื่ม",
+                itemPillow: "หมอน",
+                itemBlanket: "ผ้าห่ม",
+                itemSlippers: "รองเท้าสลิปเปอร์",
+                itemSoapShampoo: "สบู่ & แชมพู",
+                itemTissues: "กระดาษทิชชู่",
+                itemHairdryer: "ไดร์เป่าผม",
+                itemExtraBed: "เตียงเสริม",
+                headingRepairForm: "แจ้งซ่อมอุปกรณ์ในห้องพัก",
+                labelRepairCategory: "หมวดหมู่อุปกรณ์ที่ชำรุด:",
+                labelRepairDesc: "รายละเอียดปัญหาที่พบ:",
+                btnSubmitRepair: "ส่งแจ้งซ่อมอุปกรณ์",
+                headingRepairStatus: "ติดตามสถานะการแจ้งซ่อม",
+                catAc: "เครื่องปรับอากาศ",
+                catTv: "โทรทัศน์ / รีโมท",
+                catLights: "ระบบไฟฟ้า / หลอดไฟ",
+                catPlumbing: "ห้องน้ำ / ท่อน้ำ",
+                catDoor: "กลอนประตู / คีย์การ์ด",
+                catWifi: "อินเทอร์เน็ต Wi-Fi",
+                catFurniture: "เฟอร์นิเจอร์",
+                catOther: "อื่นๆ",
+                headingRateRoom: "ประเมินความพึงพอใจห้องพัก",
+                subtextRateRoom: "ร่วมแบ่งปันประสบการณ์การเข้าพักเพื่อการบริการที่ดียิ่งขึ้น",
+                btnSubmitRating: "ส่งคะแนนประเมิน",
+                headingRatingHistory: "ประวัติการประเมินของห้องนี้",
+                hkTitle: "ระบบจัดการแม่บ้าน (Housekeeper Dashboard)",
+                hkSubtitle: "จัดการบริการคำขอ แจ้งซ่อม และข้อคิดเห็นของลูกค้า",
+                hkTabAmenities: "รายการขอของใช้",
+                hkTabRepairs: "รายการแจ้งซ่อม",
+                hkTabRatings: "คะแนนประเมิน",
+                filterAll: "ทั้งหมด",
+                filterPending: "รอดำเนินการ",
+                filterInProgress: "กำลังดำเนินการ",
+                filterCompleted: "เสร็จสิ้น",
+                hkActionAccept: "รับงาน",
+                hkActionDone: "เสร็จสิ้น",
+                hkActionDelete: "ลบรายการ",
+                pinTitle: "เข้าสู่ระบบแม่บ้าน",
+                pinErr: "PIN ไม่ถูกต้อง",
+                btnCancel: "ยกเลิก",
+                selectRoomFirstMsg: "โปรดเลือกหมายเลขห้องพักก่อน",
+                noItemsSelectedMsg: "กรุณาเลือกจำนวนสิ่งของอย่างน้อย 1 รายการ",
+                fillRepairDescMsg: "กรุณากรอกรายละเอียดปัญหา"
+            },
+            en: {
+                subtitle: "Amenities & Maintenance Service",
+                modeHousekeeper: "Housekeeper",
+                modeGuest: "Guest Mode",
+                selectRoomLabel: "Select Your Room Number",
+                selectRoomPlaceholder: "-- Please select room --",
+                badgePrivate: "Private",
+                tabAmenities: "Request Amenities",
+                tabRepairs: "Maintenance",
+                tabRatings: "Room Rating",
+                selectAmenitiesHeading: "Select Items Needed",
+                resetBtn: "Reset",
+                noteLabel: "Additional Note (Optional):",
+                notePlaceholder: "Specify additional notes...",
+                submitBtn: "Submit Request",
+                roomStatusHeading: "Your Delivery Status",
+                privacyNotice: "Only displaying data associated with your selected room.",
+                noRequests: "No active records for this room.",
+                statusPending: "Pending",
+                statusInProgress: "In Delivery",
+                statusCompleted: "Completed",
+                statusInRepair: "In Repair",
+                statusFixed: "Fixed",
+                itemTowel: "Towels",
+                itemWater: "Water Bottle",
+                itemPillow: "Pillow",
+                itemBlanket: "Blanket",
+                itemSlippers: "Slippers",
+                itemSoapShampoo: "Soap & Shampoo",
+                itemTissues: "Tissues / Toilet Paper",
+                itemHairdryer: "Hair Dryer",
+                itemExtraBed: "Extra Bed",
+                headingRepairForm: "Room Maintenance Request",
+                labelRepairCategory: "Issue Category:",
+                labelRepairDesc: "Problem Description:",
+                btnSubmitRepair: "Submit Repair Ticket",
+                headingRepairStatus: "Repair Status Tracking",
+                catAc: "Air Conditioner",
+                catTv: "TV / Remote",
+                catLights: "Lighting / Power",
+                catPlumbing: "Bathroom / Plumbing",
+                catDoor: "Door Lock / Keycard",
+                catWifi: "Wi-Fi Internet",
+                catFurniture: "Furniture",
+                catOther: "Other",
+                headingRateRoom: "Rate Your Stay",
+                subtextRateRoom: "Share your experience to help us improve our service.",
+                btnSubmitRating: "Submit Review",
+                headingRatingHistory: "Room Rating History",
+                hkTitle: "Housekeeper Dashboard",
+                hkSubtitle: "Manage room requests, maintenance, and reviews.",
+                hkTabAmenities: "Amenity Requests",
+                hkTabRepairs: "Maintenance Tasks",
+                hkTabRatings: "Guest Reviews",
+                filterAll: "All",
+                filterPending: "Pending",
+                filterInProgress: "In Progress",
+                filterCompleted: "Completed",
+                hkActionAccept: "Accept Task",
+                hkActionDone: "Mark Fixed/Done",
+                hkActionDelete: "Delete",
+                pinTitle: "Housekeeper Login",
+                pinErr: "Incorrect PIN",
+                btnCancel: "Cancel",
+                selectRoomFirstMsg: "Please select a room number first.",
+                noItemsSelectedMsg: "Please select at least 1 item.",
+                fillRepairDescMsg: "Please describe the problem."
+            },
+            ja: {
+                subtitle: "客室アメニティ・修理受付",
+                modeHousekeeper: "客室係",
+                modeGuest: "宿泊者",
+                selectRoomLabel: "部屋番号を選択してください",
+                selectRoomPlaceholder: "-- 部屋を選択 --",
+                badgePrivate: "プライベート",
+                tabAmenities: "アメニティ申請",
+                tabRepairs: "故障・修理連絡",
+                tabRatings: "部屋の評価",
+                selectAmenitiesHeading: "ご希望のアメニティを選択",
+                resetBtn: "リセット",
+                noteLabel: "備考（任意）:",
+                notePlaceholder: "詳細をご記入ください...",
+                submitBtn: "リクエストを送信",
+                roomStatusHeading: "お届け状況",
+                privacyNotice: "選択されたお部屋のデータのみ表示しています",
+                noRequests: "リクエストはありません",
+                statusPending: "受付中",
+                statusInProgress: "配送中",
+                statusCompleted: "完了",
+                statusInRepair: "修理中",
+                statusFixed: "修理完了",
+                itemTowel: "タオル",
+                itemWater: "ミネラルウォーター",
+                itemPillow: "枕",
+                itemBlanket: "毛布",
+                itemSlippers: "スリッパ",
+                itemSoapShampoo: "石鹸＆シャンプー",
+                itemTissues: "ティッシュペーパー",
+                itemHairdryer: "ドライヤー",
+                itemExtraBed: "エキストラベッド",
+                headingRepairForm: "室内設備の修理依頼",
+                labelRepairCategory: "故障のカテゴリ:",
+                labelRepairDesc: "問題の詳細:",
+                btnSubmitRepair: "修理依頼を送信",
+                headingRepairStatus: "修理進捗状況",
+                catAc: "エアコン",
+                catTv: "テレビ / リモコン",
+                catLights: "照明 / 電源",
+                catPlumbing: "浴室 / 水まわり",
+                catDoor: "ドアロック / 鍵",
+                catWifi: "Wi-Fi 接続",
+                catFurniture: "家具",
+                catOther: "その他",
+                headingRateRoom: "お部屋の評価・レビュー",
+                subtextRateRoom: "サービス向上ため評価にご協力ください",
+                btnSubmitRating: "評価を送信",
+                headingRatingHistory: "このお部屋の評価履歴",
+                hkTitle: "客室管理ダッシュボード",
+                hkSubtitle: "リクエスト・修理・レビューの一括管理",
+                hkTabAmenities: "アメニティ依頼",
+                hkTabRepairs: "修理タスク",
+                hkTabRatings: "評価・レビュー",
+                filterAll: "すべて",
+                filterPending: "未対応",
+                filterInProgress: "対応中",
+                filterCompleted: "完了",
+                hkActionAccept: "対応を開始",
+                hkActionDone: "完了にする",
+                hkActionDelete: "削除",
+                pinTitle: "スタッフログイン",
+                pinErr: "PINコードが違います",
+                btnCancel: "キャンセル",
+                selectRoomFirstMsg: "最初に部屋番号を選択してください",
+                noItemsSelectedMsg: "1つ以上のアイテムを選択してください",
+                fillRepairDescMsg: "問題の詳細を入力してください"
+            },
+            ko: {
+                subtitle: "객실 용품 및 수리 요청",
+                modeHousekeeper: "하우스키퍼",
+                modeGuest: "투숙객",
+                selectRoomLabel: "객실 번호를 선택하세요",
+                selectRoomPlaceholder: "-- 객실 선택 --",
+                badgePrivate: "개인정보 보호",
+                tabAmenities: "용품 요청",
+                tabRepairs: "고장/수리 신고",
+                tabRatings: "객실 평가",
+                selectAmenitiesHeading: "요청할 물품 선택",
+                resetBtn: "초기화",
+                noteLabel: "추가 요청사항 (선택):",
+                notePlaceholder: "상세 내용을 입력하세요...",
+                submitBtn: "요청 제출하기",
+                roomStatusHeading: "객실 배송/처리 현황",
+                privacyNotice: "선택하신 객실의 요청 내역만 표시됩니다.",
+                noRequests: "요청 내역이 없습니다.",
+                statusPending: "접수됨",
+                statusInProgress: "처리 중",
+                statusCompleted: "완료됨",
+                statusInRepair: "수리 중",
+                statusFixed: "수리 완료",
+                itemTowel: "수건",
+                itemWater: "생수",
+                itemPillow: "베개",
+                itemBlanket: "담요",
+                itemSlippers: "슬리퍼",
+                itemSoapShampoo: "비누 & 샴푸",
+                itemTissues: "휴지/티슈",
+                itemHairdryer: "헤어드라이어",
+                itemExtraBed: "엑스트라 베드",
+                headingRepairForm: "객실 시설 수리 요청",
+                labelRepairCategory: "고장 유형:",
+                labelRepairDesc: "증상 설명:",
+                btnSubmitRepair: "수리 요청 제출",
+                headingRepairStatus: "수리 진행 현황",
+                catAc: "에어컨",
+                catTv: "TV / 리모컨",
+                catLights: "조명 / 전원",
+                catPlumbing: "욕실 / 배수관",
+                catDoor: "도어락 / 열쇠",
+                catWifi: "무선 인터넷",
+                catFurniture: "가구",
+                catOther: "기타",
+                headingRateRoom: "객실 만족도 평가",
+                subtextRateRoom: "더 나은 서비스를 위해 평가를 부탁드립니다.",
+                btnSubmitRating: "평가 제출",
+                headingRatingHistory: "이 객실의 평가 내역",
+                hkTitle: "하우스키퍼 대시보드",
+                hkSubtitle: "요청, 수리 및 리뷰 현황 통합 관리",
+                hkTabAmenities: "용품 요청 목록",
+                hkTabRepairs: "수리 요청 목록",
+                hkTabRatings: "고객 리뷰",
+                filterAll: "전체",
+                filterPending: "대기 중",
+                filterInProgress: "진행 중",
+                filterCompleted: "완료됨",
+                hkActionAccept: "접수 및 시작",
+                hkActionDone: "완료 처리",
+                hkActionDelete: "삭제",
+                pinTitle: "직원 로그인",
+                pinErr: "PIN 번호가 올바르지 않습니다.",
+                btnCancel: "취소",
+                selectRoomFirstMsg: "먼저 객실 번호를 선택해주세요.",
+                noItemsSelectedMsg: "최소 1개 이상의 물품을 선택해주세요.",
+                fillRepairDescMsg: "증상을 설명해주세요."
+            },
+            zh: {
+                subtitle: "客房用品与报修服务",
+                modeHousekeeper: "客房服务",
+                modeGuest: "住客模式",
+                selectRoomLabel: "请选择您的房间号",
+                selectRoomPlaceholder: "-- 请选择房间 --",
+                badgePrivate: "隐私保护",
+                tabAmenities: "申领物品",
+                tabRepairs: "设施报修",
+                tabRatings: "客房评分",
+                selectAmenitiesHeading: "选择所需客房物品",
+                resetBtn: "重置",
+                noteLabel: "附加备注（可选）:",
+                notePlaceholder: "请输入备注...",
+                submitBtn: "提交服务请求",
+                roomStatusHeading: "您的服务进度",
+                privacyNotice: "系统仅显示您所选房间的记录。",
+                noRequests: "暂无记录。",
+                statusPending: "待处理",
+                statusInProgress: "配送中",
+                statusCompleted: "已完成",
+                statusInRepair: "维修中",
+                statusFixed: "已修复",
+                itemTowel: "毛巾",
+                itemWater: "饮用水",
+                itemPillow: "枕头",
+                itemBlanket: "毛毯",
+                itemSlippers: "拖鞋",
+                itemSoapShampoo: "香皂与洗发水",
+                itemTissues: "纸巾/卫生纸",
+                itemHairdryer: "吹风机",
+                itemExtraBed: "加床",
+                headingRepairForm: "客房设施故障报修",
+                labelRepairCategory: "故障类别:",
+                labelRepairDesc: "故障详细描述:",
+                btnSubmitRepair: "提交报修单",
+                headingRepairStatus: "报修处理进度",
+                catAc: "空调系统",
+                catTv: "电视 / 遥控器",
+                catLights: "照明 / 电源",
+                catPlumbing: "浴室 / 水管",
+                catDoor: "门锁 / 门卡",
+                catWifi: "Wi-Fi 网络",
+                catFurniture: "家具",
+                catOther: "其他",
+                headingRateRoom: "客房服务评价",
+                subtextRateRoom: "分享您的入住体验，帮助我们改善服务。",
+                btnSubmitRating: "提交评价",
+                headingRatingHistory: "本房间历史评价",
+                hkTitle: "客房管理面板 (Housekeeper)",
+                hkSubtitle: "管理客房请求、报修及客户评价。",
+                hkTabAmenities: "物品申领单",
+                hkTabRepairs: "报修处理单",
+                hkTabRatings: "客户评价",
+                filterAll: "全部",
+                filterPending: "待处理",
+                filterInProgress: "处理中",
+                filterCompleted: "已完成",
+                hkActionAccept: "接单处理",
+                hkActionDone: "标记完成",
+                hkActionDelete: "删除",
+                pinTitle: "员工身份验证",
+                pinErr: "PIN 码错误",
+                btnCancel: "取消",
+                selectRoomFirstMsg: "请先选择房间号",
+                noItemsSelectedMsg: "请至少选择一件物品",
+                fillRepairDescMsg: "请输入故障描述"
+            },
+            ru: {
+                subtitle: "Принадлежности и Ремонт",
+                modeHousekeeper: "Горничная",
+                modeGuest: "Гость",
+                selectRoomLabel: "Выберите номер вашего комнаты",
+                selectRoomPlaceholder: "-- Выберите номер --",
+                badgePrivate: "Конфиденциально",
+                tabAmenities: "Заказ вещей",
+                tabRepairs: "Ремонт",
+                tabRatings: "Оценка номера",
+                selectAmenitiesHeading: "Выберите необходимые предметы",
+                resetBtn: "Сброс",
+                noteLabel: "Дополнительно:",
+                notePlaceholder: "Укажите детали...",
+                submitBtn: "Отправить запрос",
+                roomStatusHeading: "Статус вашего запроса",
+                privacyNotice: "Отображаются данные только для вашего номера.",
+                noRequests: "Нет активных запросов.",
+                statusPending: "Ожидает",
+                statusInProgress: "В пути",
+                statusCompleted: "Завершено",
+                statusInRepair: "В ремонте",
+                statusFixed: "Исправлено",
+                itemTowel: "Полотенца",
+                itemWater: "Вода",
+                itemPillow: "Подушка",
+                itemBlanket: "Одеяло",
+                itemSlippers: "Тапочки",
+                itemSoapShampoo: "Мыло и Шампунь",
+                itemTissues: "Салфетки / Бумага",
+                itemHairdryer: "Фен",
+                itemExtraBed: "Доп. кровать",
+                headingRepairForm: "Заявка на ремонт в номере",
+                labelRepairCategory: "Категория поломки:",
+                labelRepairDesc: "Описание проблемы:",
+                btnSubmitRepair: "Отправить заявку",
+                headingRepairStatus: "Статус ремонта",
+                catAc: "Кондиционер",
+                catTv: "ТВ / Пульт",
+                catLights: "Освещение / Электрика",
+                catPlumbing: "Сантехника",
+                catDoor: "Замок / Ключ",
+                catWifi: "Wi-Fi",
+                catFurniture: "Мебель",
+                catOther: "Другое",
+                headingRateRoom: "Оцените ваше проживание",
+                subtextRateRoom: "Поделитесь впечатлениями для улучшения сервиса.",
+                btnSubmitRating: "Отправить отзыв",
+                headingRatingHistory: "История оценок номера",
+                hkTitle: "Панель горничной",
+                hkSubtitle: "Управление запросами, ремонтом и отзывами.",
+                hkTabAmenities: "Запросы вещей",
+                hkTabRepairs: "Заявки на ремонт",
+                hkTabRatings: "Отзывы",
+                filterAll: "Все",
+                filterPending: "В очереди",
+                filterInProgress: "В процессе",
+                filterCompleted: "Завершено",
+                hkActionAccept: "Принять",
+                hkActionDone: "Готово",
+                hkActionDelete: "Удалить",
+                pinTitle: "Авторизация",
+                pinErr: "Неверный PIN-код",
+                btnCancel: "Отмена",
+                selectRoomFirstMsg: "Сначала выберите номер комнаты.",
+                noItemsSelectedMsg: "Выберите хотя бы один предмет.",
+                fillRepairDescMsg: "Опишите проблему."
+            },
+            es: {
+                subtitle: "Amenidades y Mantenimiento",
+                modeHousekeeper: "Camarera",
+                modeGuest: "Huésped",
+                selectRoomLabel: "Seleccione su habitación",
+                selectRoomPlaceholder: "-- Seleccionar habitación --",
+                badgePrivate: "Privado",
+                tabAmenities: "Pedir Cosas",
+                tabRepairs: "Mantenimiento",
+                tabRatings: "Calificar",
+                selectAmenitiesHeading: "Seleccione los artículos necesarios",
+                resetBtn: "Restablecer",
+                noteLabel: "Nota adicional (Opcional):",
+                notePlaceholder: "Escriba notas adicionales...",
+                submitBtn: "Enviar Solicitud",
+                roomStatusHeading: "Estado de su Habitación",
+                privacyNotice: "Solo se muestran los datos de su habitación seleccionada.",
+                noRequests: "No hay registros activos.",
+                statusPending: "Pendiente",
+                statusInProgress: "En camino",
+                statusCompleted: "Completado",
+                statusInRepair: "En reparación",
+                statusFixed: "Reparado",
+                itemTowel: "Toallas",
+                itemWater: "Agua",
+                itemPillow: "Almohada",
+                itemBlanket: "Manta",
+                itemSlippers: "Zapatillas",
+                itemSoapShampoo: "Jabón y Champú",
+                itemTissues: "Pañuelos / Papel",
+                itemHairdryer: "Secador de Pelo",
+                itemExtraBed: "Cama Extra",
+                headingRepairForm: "Solicitud de Reparación",
+                labelRepairCategory: "Categoría del problema:",
+                labelRepairDesc: "Descripción del problema:",
+                btnSubmitRepair: "Enviar Mantenimiento",
+                headingRepairStatus: "Estado de Reparaciones",
+                catAc: "Aire Acondicionado",
+                catTv: "TV / Mando",
+                catLights: "Iluminación",
+                catPlumbing: "Baño / Tuberías",
+                catDoor: "Cerradura / Llave",
+                catWifi: "Internet Wi-Fi",
+                catFurniture: "Muebles",
+                catOther: "Otro",
+                headingRateRoom: "Evalúe su Estancia",
+                subtextRateRoom: "Ayúdenos a mejorar nuestro servicio.",
+                btnSubmitRating: "Enviar Calificación",
+                headingRatingHistory: "Historial de Calificaciones",
+                hkTitle: "Panel de Camarera / Limpieza",
+                hkSubtitle: "Gestione solicitudes, mantenimiento y opiniones.",
+                hkTabAmenities: "Solicitudes de Objetos",
+                hkTabRepairs: "Mantenimiento",
+                hkTabRatings: "Opiniones",
+                filterAll: "Todos",
+                filterPending: "Pendiente",
+                filterInProgress: "En Proceso",
+                filterCompleted: "Completado",
+                hkActionAccept: "Aceptar",
+                hkActionDone: "Marcar Hecho",
+                hkActionDelete: "Eliminar",
+                pinTitle: "Acceso de Personal",
+                pinErr: "PIN incorrecto",
+                btnCancel: "Cancelar",
+                selectRoomFirstMsg: "Por favor seleccione su habitación primero.",
+                noItemsSelectedMsg: "Seleccione al menos 1 artículo.",
+                fillRepairDescMsg: "Por favor describa el problema."
+            },
+            de: {
+                subtitle: "Amenities & Reparaturdienst",
+                modeHousekeeper: "Housekeeping",
+                modeGuest: "Gästebereich",
+                selectRoomLabel: "Wählen Sie Ihre Zimmernummer",
+                selectRoomPlaceholder: "-- Zimmer auswählen --",
+                badgePrivate: "Privat",
+                tabAmenities: "Artikel anfordern",
+                tabRepairs: "Reparatur melden",
+                tabRatings: "Bewertung",
+                selectAmenitiesHeading: "Benötigte Artikel auswählen",
+                resetBtn: "Zurücksetzen",
+                noteLabel: "Zusätzliche Anmerkung:",
+                notePlaceholder: "Details eingeben...",
+                submitBtn: "Anfrage Absenden",
+                roomStatusHeading: "Status Ihres Zimmers",
+                privacyNotice: "Es werden nur Daten Ihres ausgewählten Zimmers angezeigt.",
+                noRequests: "Keine Einträge für dieses Zimmer.",
+                statusPending: "Offen",
+                statusInProgress: "In Lieferung",
+                statusCompleted: "Erledigt",
+                statusInRepair: "In Reparatur",
+                statusFixed: "Repariert",
+                itemTowel: "Handtücher",
+                itemWater: "Wasser",
+                itemPillow: "Kissen",
+                itemBlanket: "Decke",
+                itemSlippers: "Hausschuhe",
+                itemSoapShampoo: "Seife & Shampoo",
+                itemTissues: "Papiertücher",
+                itemHairdryer: "Haartrockner",
+                itemExtraBed: "Zustellbett",
+                headingRepairForm: "Defekt / Reparatur melden",
+                labelRepairCategory: "Kategorie:",
+                labelRepairDesc: "Problembeschreibung:",
+                btnSubmitRepair: "Meldung Absenden",
+                headingRepairStatus: "Reparaturstatus",
+                catAc: "Klimaanlage",
+                catTv: "TV / Fernbedienung",
+                catLights: "Beleuchtung / Strom",
+                catPlumbing: "Bad / Sanitär",
+                catDoor: "Türschloss / Karte",
+                catWifi: "Wi-Fi Internet",
+                catFurniture: "Möbel",
+                catOther: "Sonstiges",
+                headingRateRoom: "Zimmer Bewerten",
+                subtextRateRoom: "Teilen Sie Ihre Erfahrungen mit uns.",
+                btnSubmitRating: "Bewertung Absenden",
+                headingRatingHistory: "Bewertungsverlauf",
+                hkTitle: "Housekeeping Dashboard",
+                hkSubtitle: "Anfragen, Reparaturen und Bewertungen verwalten.",
+                hkTabAmenities: "Artikel-Anfragen",
+                hkTabRepairs: "Reparaturen",
+                hkTabRatings: "Gästebewertungen",
+                filterAll: "Alle",
+                filterPending: "Offen",
+                filterInProgress: "In Bearbeitung",
+                filterCompleted: "Erledigt",
+                hkActionAccept: "Annehmen",
+                hkActionDone: "Als Erledigt markieren",
+                hkActionDelete: "Löschen",
+                pinTitle: "Personal Login",
+                pinErr: "Falsche PIN",
+                btnCancel: "Abbrechen",
+                selectRoomFirstMsg: "Bitte wählen Sie zuerst Ihre Zimmernummer aus.",
+                noItemsSelectedMsg: "Bitte wählen Sie mindestens 1 Artikel aus.",
+                fillRepairDescMsg: "Bitte beschreiben Sie das Problem."
+            }
+        };
+
+        // State Store
+        let itemQuantities = {};
+        AMENITIES.forEach(a => itemQuantities[a.id] = 0);
+
+        let amenityRequestsStore = JSON.parse(localStorage.getItem('rc_amenities_v2') || '[]');
+        let repairRequestsStore = JSON.parse(localStorage.getItem('rc_repairs_v2') || '[]');
+        let roomRatingsStore = JSON.parse(localStorage.getItem('rc_ratings_v2') || '[]');
+
+        function saveStore() {
+            localStorage.setItem('rc_amenities_v2', JSON.stringify(amenityRequestsStore));
+            localStorage.setItem('rc_repairs_v2', JSON.stringify(repairRequestsStore));
+            localStorage.setItem('rc_ratings_v2', JSON.stringify(roomRatingsStore));
+        }
+
+        // Window Onload Initialization
+        window.onload = function() {
+            renderAmenitiesGrid();
+            updateLanguageUI();
+            setStarRating(5);
+        };
+
+        // UI Language Switch
+        function changeLanguage(langCode) {
+            if (i18n[langCode]) {
+                currentLang = langCode;
+                updateLanguageUI();
+                renderAmenitiesGrid();
+                renderGuestAllData();
+                renderHousekeeperAllData();
+            }
+        }
+
+        function updateLanguageUI() {
+            const lang = i18n[currentLang];
+
+            // Header & Mode
+            document.getElementById('headerSubtitle').textContent = lang.subtitle;
+            document.getElementById('modeBtnText').textContent = (currentMode === 'guest') ? lang.modeHousekeeper : lang.modeGuest;
+
+            // Room Selector
+            document.getElementById('labelSelectRoom').textContent = lang.selectRoomLabel;
+            document.getElementById('optSelectRoomPlaceholder').textContent = lang.selectRoomPlaceholder;
+            document.getElementById('badgePrivate').innerHTML = `<i class="fa-solid fa-lock text-[10px] mr-1"></i>${lang.badgePrivate}`;
+
+            // Guest Tabs
+            document.getElementById('tabGuestAmenities').textContent = lang.tabAmenities;
+            document.getElementById('tabGuestRepairs').textContent = lang.tabRepairs;
+            document.getElementById('tabGuestRatings').textContent = lang.tabRatings;
+
+            // Tab 1 (Amenities)
+            document.getElementById('headingSelectAmenities').textContent = lang.selectAmenitiesHeading;
+            document.getElementById('btnResetItems').textContent = lang.resetBtn;
+            document.getElementById('labelNote').textContent = lang.noteLabel;
+            document.getElementById('requestNote').placeholder = lang.notePlaceholder;
+            document.getElementById('textSubmitBtn').textContent = lang.submitBtn;
+            document.getElementById('headingRoomStatus').textContent = lang.roomStatusHeading;
+            document.getElementById('privacyNoticeText').innerHTML = `<i class="fa-solid fa-shield-halved text-slate-400 mr-1"></i>${lang.privacyNotice}`;
+
+            // Tab 2 (Repairs)
+            document.getElementById('headingRepairForm').textContent = lang.headingRepairForm;
+            document.getElementById('labelRepairCategory').textContent = lang.labelRepairCategory;
+            document.getElementById('labelRepairDesc').textContent = lang.labelRepairDesc;
+            document.getElementById('repairDescription').placeholder = lang.notePlaceholder;
+            document.getElementById('btnSubmitRepairText').textContent = lang.btnSubmitRepair;
+            document.getElementById('headingRepairStatus').textContent = lang.headingRepairStatus;
+
+            document.getElementById('optCategoryAc').textContent = lang.catAc;
+            document.getElementById('optCategoryTv').textContent = lang.catTv;
+            document.getElementById('optCategoryLights').textContent = lang.catLights;
+            document.getElementById('optCategoryPlumbing').textContent = lang.catPlumbing;
+            document.getElementById('optCategoryDoor').textContent = lang.catDoor;
+            document.getElementById('optCategoryWifi').textContent = lang.catWifi;
+            document.getElementById('optCategoryFurniture').textContent = lang.catFurniture;
+            document.getElementById('optCategoryOther').textContent = lang.catOther;
+
+            // Tab 3 (Ratings)
+            document.getElementById('headingRateRoom').textContent = lang.headingRateRoom;
+            document.getElementById('subtextRateRoom').textContent = lang.subtextRateRoom;
+            document.getElementById('btnSubmitRatingText').textContent = lang.btnSubmitRating;
+            document.getElementById('headingRatingHistory').textContent = lang.headingRatingHistory;
+
+            // HK Dashboard
+            document.getElementById('hkDashboardTitle').textContent = lang.hkTitle;
+            document.getElementById('hkDashboardSubtitle').textContent = lang.hkSubtitle;
+            document.getElementById('hkTabLabelAmenities').textContent = lang.hkTabAmenities;
+            document.getElementById('hkTabLabelRepairs').textContent = lang.hkTabRepairs;
+            document.getElementById('hkTabLabelRatings').textContent = lang.hkTabRatings;
+            
+            document.getElementById('filterAllText').textContent = lang.filterAll;
+            document.getElementById('filterPendingText').textContent = lang.filterPending;
+            document.getElementById('filterInProgressText').textContent = lang.filterInProgress;
+            document.getElementById('filterCompletedText').textContent = lang.filterCompleted;
+
+            // PIN Modal
+            document.getElementById('pinModalTitle').textContent = lang.pinTitle;
+            document.getElementById('pinError').textContent = lang.pinErr;
+            document.getElementById('btnPinCancel').textContent = lang.btnCancel;
+        }
+
+        // Render Amenities Grid
+        function renderAmenitiesGrid() {
+            const container = document.getElementById('amenitiesContainer');
+            container.innerHTML = '';
+
+            AMENITIES.forEach(item => {
+                const count = itemQuantities[item.id] || 0;
+                const localizedName = i18n[currentLang][item.key] || item.id;
+
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border transition flex items-center justify-between ${count > 0 ? 'bg-brand-50/50 border-brand-300 shadow-xs' : 'bg-slate-50 border-slate-200'}`;
+                
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-lg ${count > 0 ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-600'} flex items-center justify-center transition">
+                            <i class="fa-solid ${item.icon} text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">${localizedName}</h4>
+                            <span class="text-[10px] text-slate-400 font-medium">Qty: ${count}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-1.5 bg-white border border-slate-200 p-1 rounded-lg">
+                        <button onclick="changeQuantity('${item.id}', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center transition active:scale-90">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <span class="w-5 text-center text-xs font-bold text-slate-800">${count}</span>
+                        <button onclick="changeQuantity('${item.id}', 1)" class="w-6 h-6 rounded bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs flex items-center justify-center transition active:scale-90">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function changeQuantity(id, delta) {
+            if (!currentSelectedRoom) {
+                alert(i18n[currentLang].selectRoomFirstMsg);
+                return;
+            }
+            const current = itemQuantities[id] || 0;
+            itemQuantities[id] = Math.max(0, current + delta);
+            renderAmenitiesGrid();
+        }
+
+        function resetQuantities() {
+            AMENITIES.forEach(a => itemQuantities[a.id] = 0);
+            renderAmenitiesGrid();
+        }
+
+        // Room Selection Changed
+        function onRoomChanged() {
+            const select = document.getElementById('roomSelect');
+            currentSelectedRoom = select.value;
+
+            const section = document.getElementById('guestContentSection');
+            const roomBadge = document.getElementById('activeRoomBadge');
+
+            if (currentSelectedRoom) {
+                section.classList.remove('opacity-50', 'pointer-events-none');
+                roomBadge.textContent = `Room ${currentSelectedRoom}`;
+            } else {
+                section.classList.add('opacity-50', 'pointer-events-none');
+                roomBadge.textContent = `Room --`;
+            }
+
+            renderGuestAllData();
+        }
+
+        // Navigation Tabs (Guest)
+        function setGuestTab(tab) {
+            currentGuestTab = tab;
+            ['amenities', 'repairs', 'ratings'].forEach(t => {
+                const btn = document.getElementById(`guestTabBtn-${t}`);
+                const content = document.getElementById(`guestTabContent-${t}`);
+                if (t === tab) {
+                    btn.className = "flex-1 py-2.5 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-2 bg-brand-600 text-white shadow-xs";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "flex-1 py-2.5 text-xs font-bold rounded-lg transition flex items-center justify-center space-x-2 text-slate-600 hover:text-slate-900";
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        // Submit Amenity Request
+        function submitGuestRequest() {
+            if (!currentSelectedRoom) {
+                alert(i18n[currentLang].selectRoomFirstMsg);
+                return;
+            }
+
+            const selectedItems = [];
+            AMENITIES.forEach(a => {
+                const qty = itemQuantities[a.id] || 0;
+                if (qty > 0) {
+                    selectedItems.push({
+                        id: a.id,
+                        key: a.key,
+                        qty: qty
+                    });
+                }
+            });
+
+            if (selectedItems.length === 0) {
+                alert(i18n[currentLang].noItemsSelectedMsg);
+                return;
+            }
+
+            const noteInput = document.getElementById('requestNote');
+            const newRequest = {
+                id: 'amenity_' + Date.now(),
+                room: currentSelectedRoom,
+                items: selectedItems,
+                note: noteInput.value.trim(),
+                status: 'pending',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            amenityRequestsStore.unshift(newRequest);
+            saveStore();
+            resetQuantities();
+            noteInput.value = '';
+
+            renderGuestAllData();
+            renderHousekeeperAllData();
+        }
+
+        // Submit Repair Request
+        function submitRepairRequest() {
+            if (!currentSelectedRoom) {
+                alert(i18n[currentLang].selectRoomFirstMsg);
+                return;
+            }
+
+            const cat = document.getElementById('repairCategorySelect').value;
+            const desc = document.getElementById('repairDescription').value.trim();
+
+            if (!desc) {
+                alert(i18n[currentLang].fillRepairDescMsg);
+                return;
+            }
+
+            const newRepair = {
+                id: 'repair_' + Date.now(),
+                room: currentSelectedRoom,
+                category: cat,
+                description: desc,
+                status: 'pending',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            repairRequestsStore.unshift(newRepair);
+            saveStore();
+            document.getElementById('repairDescription').value = '';
+
+            renderGuestAllData();
+            renderHousekeeperAllData();
+        }
+
+        // Star Rating Controls
+        function setStarRating(stars) {
+            selectedStarRating = stars;
+            for (let i = 1; i <= 5; i++) {
+                const star = document.getElementById(`star-${i}`);
+                if (i <= stars) {
+                    star.className = "fa-solid fa-star cursor-pointer hover:scale-110 transition text-amber-400";
+                } else {
+                    star.className = "fa-regular fa-star cursor-pointer hover:scale-110 transition text-slate-300";
+                }
+            }
+        }
+
+        function submitRoomRating() {
+            if (!currentSelectedRoom) {
+                alert(i18n[currentLang].selectRoomFirstMsg);
+                return;
+            }
+
+            const comment = document.getElementById('ratingComment').value.trim();
+            const newRating = {
+                id: 'rate_' + Date.now(),
+                room: currentSelectedRoom,
+                stars: selectedStarRating,
+                comment: comment,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                date: new Date().toLocaleDateString()
+            };
+
+            roomRatingsStore.unshift(newRating);
+            saveStore();
+            document.getElementById('ratingComment').value = '';
+
+            renderGuestAllData();
+            renderHousekeeperAllData();
+        }
+
+        // Render Guest Data (Isolated Per Room)
+        function renderGuestAllData() {
+            // Render Amenities Tracking
+            const amenitiesContainer = document.getElementById('guestRoomRequestsList');
+            amenitiesContainer.innerHTML = '';
+            
+            const roomAmenities = amenityRequestsStore.filter(r => r.room === currentSelectedRoom);
+            if (!currentSelectedRoom || roomAmenities.length === 0) {
+                amenitiesContainer.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">${i18n[currentLang].noRequests}</div>`;
+            } else {
+                roomAmenities.forEach(req => {
+                    const itemStr = req.items.map(i => `${i18n[currentLang][i.key] || i.id} x${i.qty}`).join(', ');
+                    let badge = '';
+                    if (req.status === 'pending') badge = `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">${i18n[currentLang].statusPending}</span>`;
+                    else if (req.status === 'in_progress') badge = `<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-bold">${i18n[currentLang].statusInProgress}</span>`;
+                    else badge = `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold">${i18n[currentLang].statusCompleted}</span>`;
+
+                    amenitiesContainer.innerHTML += `
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-semibold">${req.time}</span>
+                                <h4 class="text-xs font-bold text-slate-800 mt-0.5">${itemStr}</h4>
+                                ${req.note ? `<p class="text-xs text-slate-500 italic mt-1">${req.note}</p>` : ''}
+                            </div>
+                            ${badge}
+                        </div>
+                    `;
+                });
+            }
+
+            // Render Repairs Tracking
+            const repairsContainer = document.getElementById('guestRepairsList');
+            repairsContainer.innerHTML = '';
+
+            const roomRepairs = repairRequestsStore.filter(r => r.room === currentSelectedRoom);
+            if (!currentSelectedRoom || roomRepairs.length === 0) {
+                repairsContainer.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">${i18n[currentLang].noRequests}</div>`;
+            } else {
+                roomRepairs.forEach(req => {
+                    let badge = '';
+                    if (req.status === 'pending') badge = `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">${i18n[currentLang].statusPending}</span>`;
+                    else if (req.status === 'in_repair') badge = `<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-bold">${i18n[currentLang].statusInRepair}</span>`;
+                    else badge = `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold">${i18n[currentLang].statusFixed}</span>`;
+
+                    const catText = i18n[currentLang]['cat' + req.category.charAt(0).toUpperCase() + req.category.slice(1)] || req.category;
+
+                    repairsContainer.innerHTML += `
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-semibold">${req.time}</span>
+                                <h4 class="text-xs font-bold text-slate-800 mt-0.5">${catText}</h4>
+                                <p class="text-xs text-slate-600 mt-1">${req.description}</p>
+                            </div>
+                            ${badge}
+                        </div>
+                    `;
+                });
+            }
+
+            // Render Ratings History
+            const ratingsContainer = document.getElementById('guestRatingsList');
+            ratingsContainer.innerHTML = '';
+
+            const roomRatings = roomRatingsStore.filter(r => r.room === currentSelectedRoom);
+            if (!currentSelectedRoom || roomRatings.length === 0) {
+                ratingsContainer.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">${i18n[currentLang].noRequests}</div>`;
+            } else {
+                roomRatings.forEach(rate => {
+                    const starsHtml = '★'.repeat(rate.stars) + '☆'.repeat(5 - rate.stars);
+                    ratingsContainer.innerHTML += `
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-amber-400 text-sm font-bold">${starsHtml}</span>
+                                <span class="text-[10px] text-slate-400">${rate.date} ${rate.time}</span>
+                            </div>
+                            ${rate.comment ? `<p class="text-xs text-slate-700">${rate.comment}</p>` : ''}
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Housekeeper Dashboard Controls
+        function setHkTab(tab) {
+            currentHkTab = tab;
+            ['amenities', 'repairs', 'ratings'].forEach(t => {
+                const btn = document.getElementById(`hkTabBtn-${t}`);
+                const content = document.getElementById(`hkTabContent-${t}`);
+                if (t === tab) {
+                    btn.className = "py-2 border-b-2 border-brand-500 text-brand-400 transition flex items-center gap-1.5";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "py-2 border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5";
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function setHkAmenityFilter(status) {
+            hkAmenityFilterStatus = status;
+            ['all', 'pending', 'in_progress', 'completed'].forEach(st => {
+                const btn = document.getElementById(`hkFilterBtn-${st}`);
+                if (st === status) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition";
+                }
+            });
+            renderHousekeeperAllData();
+        }
+
+        function renderHousekeeperAllData() {
+            // 1. Amenities List
+            const amenContainer = document.getElementById('housekeeperRequestsList');
+            amenContainer.innerHTML = '';
+
+            document.getElementById('count-all').textContent = amenityRequestsStore.length;
+            document.getElementById('count-pending').textContent = amenityRequestsStore.filter(r => r.status === 'pending').length;
+            document.getElementById('count-in_progress').textContent = amenityRequestsStore.filter(r => r.status === 'in_progress').length;
+            document.getElementById('count-completed').textContent = amenityRequestsStore.filter(r => r.status === 'completed').length;
+
+            let filteredAmen = amenityRequestsStore;
+            if (hkAmenityFilterStatus !== 'all') {
+                filteredAmen = amenityRequestsStore.filter(r => r.status === hkAmenityFilterStatus);
+            }
+
+            if (filteredAmen.length === 0) {
+                amenContainer.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">ไม่มีรายการคำขอ</div>`;
+            } else {
+                filteredAmen.forEach(req => {
+                    const itemSummary = req.items.map(i => `<span class="inline-block bg-slate-100 text-slate-800 text-xs px-2 py-0.5 rounded border border-slate-200 mr-1 mb-1">${i18n[currentLang][i.key] || i.id} x${i.qty}</span>`).join('');
+                    
+                    let badge = '';
+                    if (req.status === 'pending') badge = `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">🟡 ${i18n[currentLang].statusPending}</span>`;
+                    else if (req.status === 'in_progress') badge = `<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-bold">🔵 ${i18n[currentLang].statusInProgress}</span>`;
+                    else badge = `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold">🟢 ${i18n[currentLang].statusCompleted}</span>`;
+
+                    amenContainer.innerHTML += `
+                        <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div class="space-y-1 flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-extrabold bg-slate-900 text-white px-2 py-0.5 rounded">Room ${req.room}</span>
+                                    <span class="text-[10px] text-slate-400">${req.time}</span>
+                                    ${badge}
+                                </div>
+                                <div class="pt-1">${itemSummary}</div>
+                                ${req.note ? `<p class="text-xs text-slate-500 italic">Note: ${req.note}</p>` : ''}
+                            </div>
+                            <div class="flex items-center space-x-2 shrink-0">
+                                ${req.status === 'pending' ? `<button onclick="updateAmenityStatus('${req.id}', 'in_progress')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-1.5 px-3 rounded-lg">${i18n[currentLang].hkActionAccept}</button>` : ''}
+                                ${req.status === 'in_progress' ? `<button onclick="updateAmenityStatus('${req.id}', 'completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-1.5 px-3 rounded-lg">${i18n[currentLang].hkActionDone}</button>` : ''}
+                                <button onclick="deleteAmenityReq('${req.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-semibold py-1.5 px-3 rounded-lg">${i18n[currentLang].hkActionDelete}</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // 2. Repairs List
+            const repContainer = document.getElementById('housekeeperRepairsList');
+            repContainer.innerHTML = '';
+
+            if (repairRequestsStore.length === 0) {
+                repContainer.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">ไม่มีรายการแจ้งซ่อม</div>`;
+            } else {
+                repairRequestsStore.forEach(req => {
+                    let badge = '';
+                    if (req.status === 'pending') badge = `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">🟡 ${i18n[currentLang].statusPending}</span>`;
+                    else if (req.status === 'in_repair') badge = `<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-bold">🔵 ${i18n[currentLang].statusInRepair}</span>`;
+                    else badge = `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold">🟢 ${i18n[currentLang].statusFixed}</span>`;
+
+                    const catText = i18n[currentLang]['cat' + req.category.charAt(0).toUpperCase() + req.category.slice(1)] || req.category;
+
+                    repContainer.innerHTML += `
+                        <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div class="space-y-1 flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-extrabold bg-amber-600 text-white px-2 py-0.5 rounded">Room ${req.room}</span>
+                                    <span class="text-xs font-bold text-slate-800">${catText}</span>
+                                    ${badge}
+                                </div>
+                                <p class="text-xs text-slate-600">${req.description}</p>
+                            </div>
+                            <div class="flex items-center space-x-2 shrink-0">
+                                ${req.status === 'pending' ? `<button onclick="updateRepairStatus('${req.id}', 'in_repair')" class="bg-blue-600 text-white text-xs font-semibold py-1.5 px-3 rounded-lg">${i18n[currentLang].hkActionAccept}</button>` : ''}
+                                ${req.status === 'in_repair' ? `<button onclick="updateRepairStatus('${req.id}', 'fixed')" class="bg-emerald-600 text-white text-xs font-semibold py-1.5 px-3 rounded-lg">${i18n[currentLang].hkActionDone}</button>` : ''}
+                                <button onclick="deleteRepairReq('${req.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-semibold py-1.5 px-3 rounded-lg">${i18n[currentLang].hkActionDelete}</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // 3. Ratings List
+            const rateContainer = document.getElementById('housekeeperRatingsList');
+            rateContainer.innerHTML = '';
+
+            if (roomRatingsStore.length === 0) {
+                rateContainer.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">ไม่มีคะแนนประเมิน</div>`;
+            } else {
+                roomRatingsStore.forEach(rate => {
+                    const starsHtml = '★'.repeat(rate.stars) + '☆'.repeat(5 - rate.stars);
+                    rateContainer.innerHTML += `
+                        <div class="p-4 space-y-1">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-extrabold bg-slate-900 text-white px-2 py-0.5 rounded">Room ${rate.room}</span>
+                                    <span class="text-amber-400 text-sm font-bold">${starsHtml}</span>
+                                </div>
+                                <span class="text-[10px] text-slate-400">${rate.date} ${rate.time}</span>
+                            </div>
+                            ${rate.comment ? `<p class="text-xs text-slate-700">${rate.comment}</p>` : ''}
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Actions
+        function updateAmenityStatus(id, newStatus) {
+            const req = amenityRequestsStore.find(r => r.id === id);
+            if (req) {
+                req.status = newStatus;
+                saveStore();
+                renderGuestAllData();
+                renderHousekeeperAllData();
+            }
+        }
+
+        function deleteAmenityReq(id) {
+            amenityRequestsStore = amenityRequestsStore.filter(r => r.id !== id);
+            saveStore();
+            renderGuestAllData();
+            renderHousekeeperAllData();
+        }
+
+        function updateRepairStatus(id, newStatus) {
+            const req = repairRequestsStore.find(r => r.id === id);
+            if (req) {
+                req.status = newStatus;
+                saveStore();
+                renderGuestAllData();
+                renderHousekeeperAllData();
+            }
+        }
+
+        function deleteRepairReq(id) {
+            repairRequestsStore = repairRequestsStore.filter(r => r.id !== id);
+            saveStore();
+            renderGuestAllData();
+            renderHousekeeperAllData();
+        }
+
+        // Mode Switching & PIN Security
+        function toggleMode() {
+            if (currentMode === 'guest') {
+                openPinModal();
+            } else {
+                switchMode('guest');
+            }
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            const guestView = document.getElementById('guestView');
+            const housekeeperView = document.getElementById('housekeeperView');
+            const modeBtnText = document.getElementById('modeBtnText');
+
+            if (mode === 'housekeeper') {
+                guestView.classList.add('hidden');
+                housekeeperView.classList.remove('hidden');
+                modeBtnText.textContent = i18n[currentLang].modeGuest;
+                renderHousekeeperAllData();
+            } else {
+                housekeeperView.classList.add('hidden');
+                guestView.classList.remove('hidden');
+                modeBtnText.textContent = i18n[currentLang].modeHousekeeper;
+                renderGuestAllData();
+            }
+        }
+
+        function openPinModal() {
+            clearPin();
+            document.getElementById('pinError').classList.add('hidden');
+            document.getElementById('pinModal').classList.remove('hidden');
+        }
+
+        function closePinModal() {
+            document.getElementById('pinModal').classList.add('hidden');
+        }
+
+        function appendPin(digit) {
+            const input = document.getElementById('pinInput');
+            if (input.value.length < 4) {
+                input.value += digit;
+            }
+        }
+
+        function clearPin() {
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinError').classList.add('hidden');
+        }
+
+        function submitPin() {
+            const input = document.getElementById('pinInput');
+            if (input.value === HOUSEKEEPER_PIN) {
+                closePinModal();
+                switchMode('housekeeper');
+            } else {
+                document.getElementById('pinError').classList.remove('hidden');
+                clearPin();
+            }
+        }
+    </script>
+</body>
+</html>
